@@ -203,23 +203,23 @@ moIDs <- unique(adt.mo$moId)
 poIDs <- unique(adt.mo$poId)
 require(dplyr)
 
-comm.null.mo <- list()
-comm.null.all <- list()
-
-  
 for (i in 1:100){
-for (k in 1:length(moIDs)) {
-  comm.mo <- subset(adt.mo, moId == moIDs[k])
-  poIDs.mo <- unique(comm.mo$poId)
-  
-  for (j in 1:length(poIDs.mo)) {
-  comm.po <- subset(comm.mo, poId == poIDs.mo[j])
-  nspec <- nrow(comm.po)
-  comm.null <- sample_n(comm.mo, nspec)
-  comm.null[2:7] <- comm.po[,2:7]
-  comm.null.mo <- rbind(comm.null.mo,comm.null)
-  }
-  comm.null.all <- rbind(comm.null.all,comm.null.mo)
+  comm.null.all <- list()
+  for (k in 1:length(moIDs)) {
+    comm.null.mo <- list()
+    comm.mo <- subset(adt.mo, moId == moIDs[k])
+    comm.mo.sub <- comm.mo %>%
+      distinct(spp, .keep_all= TRUE)
+    poIDs.mo <- unique(comm.mo$poId)
+    
+    for (j in 1:length(poIDs.mo)) {
+      comm.po <- subset(comm.mo, poId == poIDs.mo[j])
+      nspec <- nrow(comm.po)
+      comm.null <- sample_n(comm.mo.sub, nspec)
+      comm.null[2:7] <- comm.po[,2:7]
+      comm.null.mo <- rbind(comm.null.mo,comm.null)
+    }
+    comm.null.all <- rbind(comm.null.all,comm.null.mo)
   }
   saveRDS(comm.null.all,file=paste0("nullout/null_mountsp_",i,"_test.rds"))
 }
